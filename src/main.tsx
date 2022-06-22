@@ -24,11 +24,17 @@ const App = () => {
       return;
     }
 
+    const env = ["process", "env", "NODE_ENV"].join(".");
+
     const result = await ref.current.build({
       entryPoints: ['index.js'],
       bundle: true,
       write: false,
-      plugins: [unpkgPathPlugin()]
+      plugins: [unpkgPathPlugin(input)],
+      define: {
+        [env]: '"production"',
+        globalName: "window",
+      },
     });
 
     console.log(result);
