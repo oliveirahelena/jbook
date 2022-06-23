@@ -1,14 +1,14 @@
 import * as esbuild from 'esbuild-wasm'
 import React, { useState, useEffect, useRef } from 'react'
-import ReactDOM from 'react-dom/client'
+import ReactDOM from 'react-dom'
 import { fetchPlugin } from './plugins/fetch-plugin';
 import { unpkgPathPlugin } from './plugins/unpkg-path-plugin';
+import CodeEditor from './components/code-editor';
 
 const App = () => {
   const ref = useRef<any>();
   const iframe = useRef<any>();
   const [input, setInput] = useState('');
-  const [code, setCode] = useState('');
 
   const startService = async () => {
     ref.current = await esbuild.startService({
@@ -26,6 +26,8 @@ const App = () => {
       return;
     }
 
+    iframe.current.srcdoc = html;
+
     const env = ["process", "env", "NODE_ENV"].join(".");
 
     const result = await ref.current.build({
@@ -38,8 +40,6 @@ const App = () => {
         globalName: "window",
       },
     });
-
-    // setCode(result.outputFiles[0].text);
     
     iframe.current.contentWindow.postMessage(result.outputFiles[0].text, '*');
   };
@@ -66,18 +66,19 @@ const App = () => {
 
   return (
     <div>
+      <CodeEditor />
       <textarea value={input} onChange={e => setInput(e.target.value)}></textarea>
       <div>
         <button onClick={onClick}>Submit</button>
       </div>
-      <pre>{code}</pre>
-      <iframe ref={iframe} sandbox='allow-scripts' srcDoc={html} />
+      <iframe title='preview' ref={iframe} sandbox='allow-scripts' srcDoc={html} />
     </div>
   )
 };
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+ReactDOM.render(
   <React.StrictMode>
     <App />
-  </React.StrictMode>
+  </React.StrictMode>,
+  document.getElementById('root')
 )
