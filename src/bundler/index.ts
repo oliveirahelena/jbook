@@ -15,18 +15,29 @@ const bundle = async (rawCode: string) => {
 
     const env = ["process", "env", "NODE_ENV"].join(".");
 
-    const result = await service.build({
-        entryPoints: ['index.js'],
-        bundle: true,
-        write: false,
-        plugins: [unpkgPathPlugin(), fetchPlugin(rawCode)],
-        define: {
-          [env]: '"production"',
-          globalName: "window",
-        },
-    });
+    try {
+        const result = await service.build({
+            entryPoints: ['index.js'],
+            bundle: true,
+            write: false,
+            plugins: [unpkgPathPlugin(), fetchPlugin(rawCode)],
+            define: {
+            [env]: '"production"',
+            globalName: "window",
+            },
+        });
 
-    return result.outputFiles[0].text;
+        return {
+            code: result.outputFiles[0].text,
+            err: '',
+        }
+    } catch (err) {
+        return {
+            code: '',
+            // @ts-ignore
+            err: err.message,
+        }
+    }
 };
 
 export default bundle;
