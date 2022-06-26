@@ -22,9 +22,11 @@ const bundle = async (rawCode: string) => {
             write: false,
             plugins: [unpkgPathPlugin(), fetchPlugin(rawCode)],
             define: {
-            [env]: '"production"',
-            globalName: "window",
+                [env]: '"production"',
+                globalName: "window",
             },
+            jsxFactory: '_React.createElement',
+            jsxFragment: '_React.Fragment',
         });
 
         return {
